@@ -2,7 +2,7 @@ import logging
 import time
 from onvif import ONVIFCamera
 
-class CameraControl:
+class ONVIFController:
     def __init__(self, ip, port, user, password):
         self.__cam_ip = ip
         self.__cam_port = port
@@ -39,7 +39,7 @@ class CameraControl:
         Returns:
             Return onvif's response.
         """
-        presets = CameraControl.get_preset_complete(self)
+        presets = ONVIFController.get_preset_complete(self)
         request = self.camera_ptz.create_type('SetPreset')
         request.ProfileToken = self.camera_media_profile.token
         request.PresetName = preset_name
@@ -61,7 +61,7 @@ class CameraControl:
         Returns:
             Returns a list of tuples with the presets.
         """
-        ptz_get_presets = CameraControl.get_preset_complete(self)
+        ptz_get_presets = ONVIFController.get_preset_complete(self)
         logging.info('camera_command( get_preset() )')
 
         presets = []
@@ -78,7 +78,9 @@ class CameraControl:
         request = self.camera_ptz.create_type('GetPresets')
         request.ProfileToken = self.camera_media_profile.token
         ptz_get_presets = self.camera_ptz.GetPresets(request)
+
         return ptz_get_presets
+        
     def remove_preset(self, preset_name: str):
         """
         Operation to remove a PTZ preset.
@@ -87,7 +89,7 @@ class CameraControl:
         Returns:
             Return onvif's response.
         """
-        presets = CameraControl.get_preset_complete(self)
+        presets = ONVIFController.get_preset_complete(self)
         request = self.camera_ptz.create_type('RemovePreset')
         request.ProfileToken = self.camera_media_profile.token
         logging.info('camera_command( remove_preset(%s) )', preset_name)
@@ -108,7 +110,7 @@ class CameraControl:
         Returns:
             Return onvif's response.
         """
-        presets = CameraControl.get_preset_complete(self)
+        presets = ONVIFController.get_preset_complete(self)
         request = self.camera_ptz.create_type('GotoPreset')
         request.ProfileToken = self.camera_media_profile.token
         logging.info('camera_command( go_to_preset(%s) )', preset_position)
@@ -123,7 +125,7 @@ class CameraControl:
         return None
 
 if __name__ == "__main__":
-    ptz_cam_218 = CameraControl("192.168.1.218", 218, "admin", "peal2024")
+    ptz_cam_218 = ONVIFController("192.168.1.218", 218, "admin", "peal2024")
     ptz_cam_218.camera_start()
 
     print(ptz_cam_218.get_preset())

@@ -26,3 +26,23 @@ Cameras:
 - [x] `ruff check goto_preset_all.py` passes
 - [x] `ruff format --check goto_preset_all.py` passes
 - [ ] Commit and push
+
+---
+
+## 2026-04-15 — Expose RTSP stream as /dev/video10 (v4l2loopback)
+
+Goal: HikVision RTSP 스트림
+(`rtsp://admin:peal2024@192.168.1.218:554/ISAPI/streaming/channels/02`)을
+v4l2loopback + ffmpeg로 `/dev/video10` 가상 카메라로 노출시켜, 다른
+프로그램(OpenCV, Zoom, OBS 등)에서 일반 V4L2 디바이스처럼 사용하게 함.
+
+Reference: `/root/.claude/plans/reflective-kindling-diffie.md`
+
+- [ ] Create GitHub issue via `gh issue create`
+- [ ] Add `rtsp_to_v4l2.sh` (modprobe v4l2loopback + ffmpeg pipe)
+      - hardcoded IP/credentials는 기존 스크립트 패턴 유지
+      - `-rtsp_transport tcp`, `-pix_fmt yuv420p`, `video_nr=10`,
+        `exclusive_caps=1`
+- [ ] `chmod +x rtsp_to_v4l2.sh`
+- [ ] Verify: `ls /dev/video10` 및 `ffplay /dev/video10`
+- [ ] Commit and push
