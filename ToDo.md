@@ -68,6 +68,27 @@ Goal: 이번 세션에서 추가/수정한 파일들이 CLAUDE.md §1 (MIT conve
 
 ---
 
+## 2026-04-15 — Fix lint debt in onvif_controller.py / hkvisionapi_example.py
+
+Goal: 사전부터 누적된 Ruff 위반을 정리해 CLAUDE.md §1/§5 준수.
+
+`onvif_controller.py`:
+- I001 import 정렬, E501 (line 18: 128, line 51: 87),
+  W293 trailing whitespace (71, 83), W292 EOF newline.
+
+`hkvisionapi_example.py`:
+- I001 import 정렬, F401 미사용 `cv2` 제거, F821 `password` 미정의
+  (→ 레포 패턴인 `'peal2024'` 하드코딩),
+  W292 EOF newline, `with` 블록 내 8-space → 4-space 보정.
+
+- [x] Create GitHub issue via `gh issue create`
+      (https://github.com/coport-uni/HikVisionPython/issues/5)
+- [x] Apply fixes (ruff --fix + manual for E501/F821)
+- [x] `ruff check` / `ruff format --check` 통과 확인
+- [x] Commit and push
+
+---
+
 ## 2026-04-15 — Teardown + 3-camera v4l2loopback mapping
 
 Goal:
