@@ -25,7 +25,7 @@ Cameras:
       exception isolation, Google-style docstring, 80-col)
 - [x] `ruff check goto_preset_all.py` passes
 - [x] `ruff format --check goto_preset_all.py` passes
-- [ ] Commit and push
+- [x] Commit and push
 
 ---
 
@@ -38,11 +38,33 @@ v4l2loopback + ffmpeg로 `/dev/video10` 가상 카메라로 노출시켜, 다른
 
 Reference: `/root/.claude/plans/reflective-kindling-diffie.md`
 
-- [ ] Create GitHub issue via `gh issue create`
-- [ ] Add `rtsp_to_v4l2.sh` (modprobe v4l2loopback + ffmpeg pipe)
+- [x] Create GitHub issue via `gh issue create`
+      (https://github.com/coport-uni/HikVisionPython/issues/2)
+- [x] Add `rtsp_to_v4l2.sh` (modprobe v4l2loopback + ffmpeg pipe)
       - hardcoded IP/credentials는 기존 스크립트 패턴 유지
       - `-rtsp_transport tcp`, `-pix_fmt yuv420p`, `video_nr=10`,
         `exclusive_caps=1`
-- [ ] `chmod +x rtsp_to_v4l2.sh`
-- [ ] Verify: `ls /dev/video10` 및 `ffplay /dev/video10`
-- [ ] Commit and push
+- [x] `chmod +x rtsp_to_v4l2.sh`
+- [x] Verify: `ls /dev/video10` 및 `ffplay /dev/video10`
+      (사용자가 호스트에서 직접 실행)
+- [x] Commit and push
+
+---
+
+## 2026-04-15 — Teardown + 3-camera v4l2loopback mapping
+
+Goal:
+1. `rtsp_to_v4l2_.sh` 로 만든 `/dev/videoN` 가상 디바이스를 깨끗하게
+   해제하는 teardown 스크립트 추가.
+2. 3대 카메라 (`192.168.1.218/.219/.220`)의 RTSP 스트림을 각각
+   `/dev/video18`, `/dev/video19`, `/dev/video20` 에 매핑하는
+   멀티카메라 변형 스크립트 추가 (기존 `rtsp_to_v4l2_.sh` 패턴 유지).
+
+- [x] Create GitHub issue via `gh issue create`
+      (https://github.com/coport-uni/HikVisionPython/issues/3)
+- [x] Add `rtsp_to_v4l2_teardown.sh` — kill running ffmpeg writers +
+      `modprobe -r v4l2loopback`
+- [x] Add `rtsp_to_v4l2_multi.sh` — `devices=3 video_nr=18,19,20`,
+      camera_label에 IP 포함, 3개 ffmpeg를 background로 기동
+- [x] `chmod +x` 두 파일
+- [x] Commit and push
