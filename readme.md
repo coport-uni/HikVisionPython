@@ -150,3 +150,81 @@ if __name__ == "__main__":
 ```
 # Result
 * video at media folder(media/KakaoTalk_20250922_224018500.mp4)
+
+# Multi-camera control
+
+`goto_preset_all_ipcamera.py` drives three cameras
+(`192.168.1.218 / .219 / .220`, all admin / peal2024) sequentially to
+the preset named `Preset 1`, reusing `ONVIFController` from
+`onvif_controller.py`. Per-camera errors are isolated so one offline
+camera does not abort the rest.
+
+```bash
+python goto_preset_all_ipcamera.py
+```
+
+# Virtual webcam (v4l2loopback)
+
+These helpers expose the HikVision RTSP streams as standard
+`/dev/videoN` devices so any V4L2 consumer (OpenCV, Zoom, OBS, ...)
+can use the camera as if it were a regular webcam. They depend on
+the `v4l2loopback` kernel module and `ffmpeg`, both installed on
+first run.
+
+| Script                       | Purpose                                                           |
+|------------------------------|-------------------------------------------------------------------|
+| `rtsp_to_v4l2_.sh`           | Single camera (`.218`) → `/dev/video10`                            |
+| `rtsp_to_v4l2_multi.sh`      | Three cameras → `/dev/video18`, `/dev/video19`, `/dev/video20`     |
+| `rtsp_to_v4l2_teardown.sh`   | Stop ffmpeg writers and unload `v4l2loopback`                      |
+
+Camera ↔ device mapping for the multi variant mirrors the last
+octet of the IP, so the device number always identifies the source:
+
+| Camera IP        | Device         | card_label        |
+|------------------|----------------|-------------------|
+| 192.168.1.218    | `/dev/video18` | `HikVision .218`  |
+| 192.168.1.219    | `/dev/video19` | `HikVision .219`  |
+| 192.168.1.220    | `/dev/video20` | `HikVision .220`  |
+
+## Usage
+
+```bash
+# Single camera
+./rtsp_to_v4l2_.sh                  # setup module + start ffmpeg pipe
+./rtsp_to_v4l2_.sh setup            # install deps + load module only
+./rtsp_to_v4l2_.sh stream           # stream only (foreground)
+
+# Three cameras at once (ffmpeg runs in background)
+./rtsp_to_v4l2_multi.sh             # setup + spawn 3 ffmpeg writers
+# Per-camera ffmpeg logs land in /tmp/rtsp_to_v4l2/cam_<NR>.log
+
+# Release the devices
+./rtsp_to_v4l2_teardown.sh          # kill ffmpeg + modprobe -r
+./rtsp_to_v4l2_teardown.sh kill-only # only stop ffmpeg, keep module
+```
+
+## Verification
+
+```bash
+ls /dev/video18 /dev/video19 /dev/video20
+v4l2-ctl --list-devices
+ffplay /dev/video18                  # or any other mapped device
+```
+
+```python
+import cv2
+cap = cv2.VideoCapture("/dev/video18")
+ok, _ = cap.read()
+print(ok)                            # True if the pipe is live
+```
+
+## Notes
+
+- Requires a privileged container (or host) so that
+  `modprobe v4l2loopback` succeeds.
+- The scripts force `-rtsp_transport tcp` because the HikVision
+  RTSP server drops UDP packets aggressively under load.
+- v4l2loopback only accepts uncompressed frames, so ffmpeg
+  decodes to `rawvideo` / `yuv420p` before writing to the device.
+- Existing `/dev/videoN` targets are left in place if they are
+  already present, to avoid disrupting a consumer that is mid-session.

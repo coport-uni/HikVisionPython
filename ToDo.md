@@ -51,6 +51,23 @@ Reference: `/root/.claude/plans/reflective-kindling-diffie.md`
 
 ---
 
+## 2026-04-15 — MIT convention 검증 + README 업데이트
+
+Goal: 이번 세션에서 추가/수정한 파일들이 CLAUDE.md §1 (MIT convention)
+및 §5 (Ruff)에 부합하는지 점검하고, 새로 추가된 v4l2loopback 유틸리티
+3종을 README에 반영.
+
+- [x] Create GitHub issue via `gh issue create`
+      (https://github.com/coport-uni/HikVisionPython/issues/4)
+- [x] Lint 점검: shell scripts — 80-col OK, 탭 없음, 영문 주석 OK
+- [x] Lint 점검: `goto_preset_all_ipcamera.py` ruff clean.
+      `onvif_controller.py`/`hkvisionapi_example.py` 는 사전부터
+      누적된 lint debt가 있음 (이번 세션 미수정, 별도 후속 필요).
+- [x] readme.md: v4l2loopback section 추가
+- [x] Commit and push
+
+---
+
 ## 2026-04-15 — Teardown + 3-camera v4l2loopback mapping
 
 Goal:
